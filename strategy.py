@@ -21,10 +21,11 @@ RISK_PREMIUM = 50 / 10000                 # 50 bps premium for illiquidity and r
 POLL_INTERVAL = 2                         # Seconds between RPC requests
 
 # Constants
-RAY = 10**27                             # Aave rate precision
-ETH_TO_WEI = 10**18                      # ETH/WEI conversion
-SECONDS_PER_YEAR = 365 * 24 * 60 * 60
-YEARS_PER_SECOND = 1 / SECONDS_PER_YEAR
+RAY = 10**27                              # Aave rate precision
+ETH_TO_WEI = 10**18                       # ETH/WEI conversion
+SECONDS_PER_YEAR = 365 * 24 * 60 * 60     # Seconds per year
+YEARS_PER_SECOND = 1 / SECONDS_PER_YEAR   # Years per second
+divider = "-" * 37                        # Divider length
 
 # Load contract ABIs
 with open("abis/curve_abi.json") as f:
@@ -53,7 +54,7 @@ def get_curve_steth_price():
         return 0
 
 def get_aave_steth_yield():
-    """Fetch wstETH interest rates from Aave."""
+    """Fetch wstETH yield from Aave."""
     try:
         # Get wstETH yield from Aave reserve data
         reserve_data = aave_contract.functions.getReserveData(WSTETH_TOKEN_ADDRESS).call()
@@ -69,7 +70,7 @@ def get_aave_steth_yield():
         return apy_decimal_year
 
     except Exception as e:
-        print(f"Error getting wstETH interest rates from Aave contract at {AAVE_LENDING_POOL_ADDRESS}: {e}")
+        print(f"Error getting wstETH yield from Aave contract at {AAVE_LENDING_POOL_ADDRESS}: {e}")
         traceback.print_exc()
         return 0
 
@@ -105,13 +106,12 @@ def main():
     
     while True:
         try:
-            divider = "-" * 37  # Divider length
             print(f"\n{divider}")
             print(f"Block Number:         {w3.eth.block_number}")
             
             # Fetch current market data
             steth_price = get_curve_steth_price()                         # Price in ETH
-            steth_yield = get_aave_steth_yield()                          # APY as decimal
+            steth_yield = get_aave_steth_yield()                          # APY as decimal/year
             steth_withdraw_duration = get_lido_steth_withdraw_duration()  # Years
 
             # Calculate arbitrage opportunity
